@@ -74,7 +74,7 @@ void drawString(int16_t x, int16_t y, const CRGB& charColor, const char text[], 
     char character;
 
     // limit text to 10 chars, why?
-    for (i = 0; i < 10; i++) {
+    for (i = 0; i < 20; i++) {
         character = text[offset++];
         if (character == '\0')
             return;
@@ -96,7 +96,7 @@ void drawString(int16_t x, int16_t y, const CRGB& charColor, const CRGB& backCol
     char character;
 
     // limit text to 10 chars, why?
-    for (i = 0; i < 10; i++) {
+    for (i = 0; i < 20; i++) {
         character = text[offset++];
         if (character == '\0')
             return;

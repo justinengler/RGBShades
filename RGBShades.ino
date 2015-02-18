@@ -54,7 +54,7 @@ void setup() {
 }
 
 // list of functions that will be displayed
-functionList effectList[] = {hackadayText,
+functionList effectList[] = {hackadayTextMulti,hackadayText,hackadayTextWhite,hackadayTextInvert,
                              threeSine,
                              threeDee,
                              plasma,

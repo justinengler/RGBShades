@@ -10,14 +10,137 @@
 #include "font.h"
 #include "font3x5.h"
 // Hackaday Text
+byte xOffset = 0;
+byte sineOffset = 0; // counter for current position of sine waves
 void hackadayText() {
-  drawString(0,4,CRGB::White,CRGB::Black, "Hackaday",&font3x5);
+  // startup tasks
+  if (effectInit == false) {
+    effectInit = true;
+    effectDelay = 150;
+    xOffset = 0;
+  }
+  for (byte x = 0; x < kMatrixWidth; x++) {
+    for (byte y = 0; y < kMatrixHeight; y++) {
+      leds[XY(x,y)] = CRGB::Black;
+    }
+  }
+  byte sinDistanceR = qmul8(sin8(sineOffset*9*16),2);
+  byte sinDistanceG = qmul8(sin8(sineOffset*10*16),2);
+  byte sinDistanceB = qmul8(sin8(sineOffset*11*16),2);
+  
+  CRGB c = CHSV(sineOffset,255,255);
+  // clear all leds
+  drawString(16-xOffset,0,c, CRGB::Black, "HACKADAY.IO",&font3x5);
+  xOffset++;
+  if (xOffset > 60) {
+    xOffset = 0;
+  }
+  sineOffset++; // byte will wrap from 255 to 0, matching sin8 0-255 cycle
+}
+void hackadayTextWhite() {
+  // startup tasks
+  if (effectInit == false) {
+    effectInit = true;
+    effectDelay = 150;
+    xOffset = 0;
+  }
+  for (byte x = 0; x < kMatrixWidth; x++) {
+    for (byte y = 0; y < kMatrixHeight; y++) {
+      leds[XY(x,y)] = CRGB::Black;
+    }
+  }
+
+  CRGB c = CRGB::White;
+  // clear all leds
+  drawString(16-xOffset,0,c, CRGB::Black, "HACKADAY.IO",&font3x5);
+  xOffset++;
+  if (xOffset > 60) {
+    xOffset = 0;
+  }
+  sineOffset++; // byte will wrap from 255 to 0, matching sin8 0-255 cycle
 }
 
+void hackadayTextInvert() {
+  // startup tasks
+  if (effectInit == false) {
+    effectInit = true;
+    effectDelay = 150;
+    xOffset = 0;
+  }
+  byte sinDistanceR = qmul8(sin8(sineOffset*9*16),2);
+  byte sinDistanceG = qmul8(sin8(sineOffset*10*16),2);
+  byte sinDistanceB = qmul8(sin8(sineOffset*11*16),2);
+  
+  CRGB c = CHSV(sineOffset,255,64);
+  
+  for (byte x = 0; x < kMatrixWidth; x++) {
+    for (byte y = 0; y < kMatrixHeight; y++) {
+      leds[XY(x,y)] = c;
+    }
+  }
 
+  // clear all leds
+  drawString(16-xOffset,0,CRGB::White, "HACKADAY.IO",&font3x5);
+  xOffset++;
+  if (xOffset > 60) {
+    xOffset = 0;
+  }
+  sineOffset++; // byte will wrap from 255 to 0, matching sin8 0-255 cycle
+}
 
+int offCounter = 0;
+void hackadayTextMulti() {
+  if (effectInit == false) {
+    effectInit = true;
+    effectDelay = 10;
+    sineOffset = 0;
+    xOffset = 0;
+    offCounter = 0;
+  }
+  
+  // clear
+  for (byte x = 0; x < kMatrixWidth; x++) {
+    for (byte y = 0; y < kMatrixHeight; y++) {
+      leds[XY(x,y)] = CRGB::Black;
+    }
+  }
+  
+  int xcnt, ycnt, i = 0, offset = 0;
+  int16_t x = 16-xOffset, y = 0;
+  char character;
+  const bitmap_font *font = &font3x5;
+  const char text[] = "HACKADAY.IO";
+  
+  // limit text to 10 chars, why?
+  for (i = 0; i < 20; i++) {
+      character = text[offset++];
+      if (character == '\0')
+          break;
+      
+      CRGB c = CHSV((i*30)+sineOffset,255,128);
+      
+      for (ycnt = 0; ycnt < font->Height; ycnt++) {
+          for (xcnt = 0; xcnt < font->Width; xcnt++) {
+              if (getBitmapFontPixelAtXY(character, xcnt, ycnt, font)) {
+                  leds[XY(x + xcnt,y + ycnt)] = c;
+              }
+          }
+      }
+      x += font->Width;
+  }
+  if (offCounter > 15) {
+    xOffset++;
+    if (xOffset > 60) {
+      xOffset = 0;
+    }
+    offCounter = 0;
+  }
+  if (offCounter%3==0) {  
+    sineOffset++;
+  }
+  offCounter++;
+}
 // Triple Sine Waves
-byte sineOffset = 0; // counter for current position of sine waves
 void threeSine() {
   
   // startup tasks
