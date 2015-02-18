@@ -1,3 +1,7 @@
+// This is all largely lifted from SmartMatrix library
+// https://github.com/pixelmatix/SmartMatrix
+// Many thanks to all the team there for their work
+
 /*
  * MatrixFontCommon.h
  *

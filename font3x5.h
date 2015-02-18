@@ -1,3 +1,7 @@
+// This is all largely lifted from SmartMatrix library
+// https://github.com/pixelmatix/SmartMatrix
+// Many thanks to all the team there for their work
+
 // Created from bdf2c Version 3, (c) 2009, 2010 by Lutz Sammer
 //	License AGPLv3: GNU Affero General Public License version 3
 
