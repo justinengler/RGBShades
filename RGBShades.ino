@@ -20,7 +20,10 @@
 
 
 // RGB Shades data output to LEDs is on pin 5
-#define LED_PIN  5
+#define LED_PIN  6
+
+//D23=A9?
+#define SOUND_PIN A9
 
 // RGB Shades color order (Green/Red/Blue)
 #define COLOR_ORDER GRB
@@ -28,7 +31,7 @@
 
 // Global maximum brightness value, maximum 255
 #define MAXBRIGHTNESS 72
-#define STARTBRIGHTNESS 127
+#define STARTBRIGHTNESS 63
 byte currentBrightness = STARTBRIGHTNESS; // 0-255 will be scaled to 0-MAXBRIGHTNESS
 
 // Include FastLED library and other useful files
@@ -41,6 +44,17 @@ byte currentBrightness = STARTBRIGHTNESS; // 0-255 will be scaled to 0-MAXBRIGHT
 // Runs one time at the start of the program (power up or reset)
 void setup() {
 
+  //Adding debugging serial
+  
+  // Serial.begin(9600);
+  //while (!Serial) {
+  //  ; // wait for serial port to connect. Needed for Leonardo only
+  //}
+  
+  //  Serial.println("Booting");
+  
+  //Below here is for keeps
+  
   // write FastLED configuration data
   FastLED.addLeds<CHIPSET, LED_PIN, COLOR_ORDER>(leds, LAST_VISIBLE_LED + 1);//.setCorrection(TypicalSMD5050);
   
@@ -51,19 +65,26 @@ void setup() {
   pinMode(MODEBUTTON, INPUT_PULLUP);
   pinMode(BRIGHTNESSBUTTON, INPUT_PULLUP);
 
+  //Serial.println("Setup Done");
+
 }
 
 // list of functions that will be displayed
-functionList effectList[] = {hackadayTextMulti,hackadayText,hackadayTextWhite,hackadayTextInvert,
-                             threeSine,
-                             threeDee,
-                             plasma,
-                             confetti,
-                             rider,
-                             glitter,
-                             slantBars,
-                             colorFill,
-                             sideRain };
+functionList effectList[] = {
+//hackadayTextMulti,hackadayText,hackadayTextWhite,hackadayTextInvert,
+
+                             
+                             //VU//,
+                             //threeSine,
+                             //threeDee,
+                             //plasma,
+                             confetti//,
+                             //rider,
+                             //glitter,
+                             //slantBars,
+                             //colorFill,
+                             //sideRain 
+                           };
 
 // Timing parameters
 #define cycleTime 15000
@@ -82,6 +103,7 @@ void loop()
       cycleMillis = currentMillis; 
       if (++currentEffect >= numEffects) currentEffect = 0; // loop to start of effect list
       effectInit = false; // trigger effect initialization when new effect is selected
+    //  Serial.println("Mode");
     break;
     
     case BTNLONGPRESS: // button was held down for a while
@@ -97,6 +119,7 @@ void loop()
     case BTNRELEASED: // button was pressed and released quickly
       currentBrightness += 16; // increase the brightness (wraps to lowest)
       FastLED.setBrightness(scale8(currentBrightness,MAXBRIGHTNESS));
+    //  Serial.println("Brightness");
     break;
     
     case BTNLONGPRESS: // button was held down for a while
@@ -128,8 +151,8 @@ void loop()
   
   // run a fade effect too if the confetti effect is running
   if (effectList[currentEffect] == confetti) fadeAll(1);
-      
   FastLED.show(); // send the contents of the led memory to the LEDs
+  //Serial.println("Called Show");
 
 }
 

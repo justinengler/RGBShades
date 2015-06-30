@@ -381,3 +381,92 @@ void slantBars() {
 
 }
 
+
+//VU testing
+const int redZone = kMatrixHeight-2;
+const int sampleWindow = 50; // Sample window width in mS (50 mS = 20Hz)
+const int VUeffectDelay = 50;
+const int SAMPS=60;
+
+void VU() 
+{
+  
+  /****************************************
+  Scrolling Sound Meter Sketch for the 
+  Adafruit Microphone Amplifier
+  ****************************************/
+
+  //const int maxScale = kMatrixHeight;
+
+  // startup tasks
+  if (effectInit == false) {
+    effectInit = true;
+    effectDelay = VUeffectDelay;    
+    //Serial.println("In VU Init");
+  }
+  
+  
+  unsigned int sample;
+
+   //unsigned long startMillis= millis();  // Start of sample window
+   unsigned int peakToPeak = 0;   // peak-to-peak level
+
+   unsigned int signalMax = 0;
+   unsigned int signalMin = 1024;
+
+  
+   for  (int i=0; i<SAMPS; i++)
+   {
+      sample = analogRead(SOUND_PIN); 
+      //Serial.println("Read Value:");
+      //Serial.println(sample);
+      if (sample < 1024)  // toss out spurious readings
+      {
+         if (sample > signalMax)
+         {
+            signalMax = sample;  // save just the max levels
+         }
+         else if (sample < signalMin)
+         {
+            signalMin = sample;  // save just the min levels
+         }
+      }
+   }
+   peakToPeak = signalMax - signalMin;
+
+   // map 1v p-p level to the max scale of the display
+   int displayPeak = map(peakToPeak, 0, 1023, 0, kMatrixHeight-1);
+
+  /* // Update the display:
+   for (int i = 0; i < kMatrixWidth-1; i++)  // shift the display left
+   {
+      //matrix.displaybuffer[i] = matrix.displaybuffer[i+1];
+      for (int j=0; j < kMatrixHeight-1; j++)
+      {
+        leds[XY(i,j)] = leds[XY(i,j+1)];
+      }
+   }*/
+
+   // draw the new sample
+   for (int i = 0; i <= kMatrixHeight-1; i++)
+   {
+       int x=2; //kMatrixWidth-1;
+      if (i >= displayPeak)  // blank these pixels
+      {
+         //matrix.drawPixel(i, 7, 0);
+         leds[XY(x,i)] = CRGB::Black;
+      }
+      else if (i < redZone) // draw in green
+      {
+         //matrix.drawPixel(i, 7, LED_GREEN);
+         leds[XY(x,i)] = CRGB::Green;
+      }
+      else // Red Alert!  Red Alert!
+      {
+         //matrix.drawPixel(i, 7, LED_RED);
+         leds[XY(x,i)] = CRGB::Red;
+      }
+   }
+   //matrix.writeDisplay();  // write the changes we just made to the display
+}
+
