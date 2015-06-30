@@ -384,11 +384,12 @@ void slantBars() {
 
 
 //VU testing
+#include "audioSamp.h"
+
 const int redZone = kMatrixHeight-2;
 const int sampleWindow = 50; // Sample window width in mS (50 mS = 20Hz)
-const int VUeffectDelay = 5;
-const int SAMPS=600;
-
+const int VUeffectDelay = 50;  //5
+const int SAMPS=600;  //600
 void VU() 
 {
   
@@ -406,38 +407,11 @@ void VU()
     //Serial.println("In VU Init");
   }
   
-  
-  unsigned int sample;
-
-   //unsigned long startMillis= millis();  // Start of sample window
-   unsigned int peakToPeak = 0;   // peak-to-peak level
-
-   unsigned int signalMax = 0;
-   unsigned int signalMin = 1024;
-
-  
-   for  (int i=0; i<SAMPS; i++)
-   {
-      sample = analogRead(SOUND_PIN); 
-      //Serial.println("Read Value:");
-      //Serial.println(sample);
-      if (sample < 1024)  // toss out spurious readings
-      {
-         if (sample > signalMax)
-         {
-            signalMax = sample;  // save just the max levels
-         }
-         else if (sample < signalMin)
-         {
-            signalMin = sample;  // save just the min levels
-         }
-      }
-   }
-   peakToPeak = signalMax - signalMin;
+   int peakToPeak = simpleSample(SAMPS);
 
    // map 1v p-p level to the max scale of the display
-   //int displayPeak = map(peakToPeak, 0, 1023, 0, kMatrixWidth-1);
-   int displayPeak = map(peakToPeak, 0, 768, 0, kMatrixWidth-1);
+   int displayPeak = map(peakToPeak, 0, 1023, 0, kMatrixWidth-1);
+   //int displayPeak = map(peakToPeak, 0, 768, 0, kMatrixWidth-1);
 
 
   int i;
@@ -446,33 +420,42 @@ void VU()
    for (i = kMatrixHeight-1; i>0; i--)  // shift the display down
    {
       //matrix.displaybuffer[i] = matrix.displaybuffer[i+1];
-      for (j = 0; j < kMatrixWidth-1; j++)
+      for (j = 0; j < kMatrixWidth; j++)
       {
         leds[XY(j,i)] = leds[XY(j,i-1)];
       }
    }
 
    // draw the new sample
-   for (i = 0; i <= kMatrixWidth-1; i++)
+   for (i = 0; i < kMatrixWidth; i++)
    {
        int y=0; //kMatrixWidth-1;
-      if (i >= displayPeak)  // blank these pixels
+     
+      if (i < displayPeak) // Below threshold, draw in color
+      {
+  
+         leds[XY(i,y)]=CHSV(map(i,0,kMatrixWidth-1,86,0), 255, 255);
+         /*Serial.print("Samp: ");
+         Serial.print(peakToPeak);
+         Serial.print(" displayPeak: ");
+         Serial.print(displayPeak);
+         Serial.print(" Row: ");
+         Serial.print(i);
+         Serial.print(" Mapped: ");
+         Serial.println(map(i,0,255,0,8));
+         //leds[XY(i,y)]=CHSV(44, 255, 255);*/
+      }
+      /*else if ( i > kMatrixWidth/2)
+      {
+        leds[XY(kMatrixWidth-i,y)] = CHSV(map(i,0,kMatrixWidth-1,86,0), 255, 255);
+      }
+      */
+      else   // blank these pixels
       {
          //matrix.drawPixel(i, 7, 0);
          leds[XY(i,y)] = CRGB::Black;
       }
-      /*else if (i < redZone) // draw in green
-      {
-         //matrix.drawPixel(i, 7, LED_GREEN);
-         leds[XY(i,y)] = CRGB::Green;
-      }*/
-      else // Red Alert!  Red Alert!
-      {
-         //matrix.drawPixel(i, 7, LED_RED);
-         //leds[XY(i,y)] = CRGB::Red;
-         //leds[XY(i,y)]=CHSV(map(i,0,255,0,kMatrixWidth-10), 255, 255);
-         leds[XY(i,y)]=CHSV(44, 255, 255);
-      }
+
    }
    //matrix.writeDisplay();  // write the changes we just made to the display
 }
