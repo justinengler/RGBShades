@@ -12,11 +12,12 @@
 // Hackaday Text
 byte xOffset = 0;
 byte sineOffset = 0; // counter for current position of sine waves
+char displayText[13] = "DEFCON XIII" ;
 void hackadayText() {
   // startup tasks
   if (effectInit == false) {
     effectInit = true;
-    effectDelay = 150;
+    effectDelay = 40 ;
     xOffset = 0;
   }
   for (byte x = 0; x < kMatrixWidth; x++) {
@@ -30,7 +31,7 @@ void hackadayText() {
   
   CRGB c = CHSV(sineOffset,255,255);
   // clear all leds
-  drawString(16-xOffset,0,c, CRGB::Black, "HACKADAY.IO",&font3x5);
+  drawString(16-xOffset,0,c, CRGB::Black, displayText,&font3x5);
   xOffset++;
   if (xOffset > 60) {
     xOffset = 0;
@@ -52,7 +53,7 @@ void hackadayTextWhite() {
 
   CRGB c = CRGB::White;
   // clear all leds
-  drawString(16-xOffset,0,c, CRGB::Black, "HACKADAY.IO",&font3x5);
+  drawString(16-xOffset,0,c, CRGB::Black, displayText,&font3x5);
   xOffset++;
   if (xOffset > 60) {
     xOffset = 0;
@@ -80,7 +81,7 @@ void hackadayTextInvert() {
   }
 
   // clear all leds
-  drawString(16-xOffset,0,CRGB::White, "HACKADAY.IO",&font3x5);
+  drawString(16-xOffset,0,CRGB::White, displayText,&font3x5);
   xOffset++;
   if (xOffset > 60) {
     xOffset = 0;
@@ -109,11 +110,11 @@ void hackadayTextMulti() {
   int16_t x = 16-xOffset, y = 0;
   char character;
   const bitmap_font *font = &font3x5;
-  const char text[] = "HACKADAY.IO";
+  //const char text[] = "HACKADAY.IO";
   
   // limit text to 10 chars, why?
   for (i = 0; i < 20; i++) {
-      character = text[offset++];
+      character = displayText[offset++];
       if (character == '\0')
           break;
       
@@ -385,8 +386,8 @@ void slantBars() {
 //VU testing
 const int redZone = kMatrixHeight-2;
 const int sampleWindow = 50; // Sample window width in mS (50 mS = 20Hz)
-const int VUeffectDelay = 50;
-const int SAMPS=60;
+const int VUeffectDelay = 5;
+const int SAMPS=600;
 
 void VU() 
 {
@@ -435,36 +436,42 @@ void VU()
    peakToPeak = signalMax - signalMin;
 
    // map 1v p-p level to the max scale of the display
-   int displayPeak = map(peakToPeak, 0, 1023, 0, kMatrixHeight-1);
+   //int displayPeak = map(peakToPeak, 0, 1023, 0, kMatrixWidth-1);
+   int displayPeak = map(peakToPeak, 0, 768, 0, kMatrixWidth-1);
 
-  /* // Update the display:
-   for (int i = 0; i < kMatrixWidth-1; i++)  // shift the display left
+
+  int i;
+  int j;
+  // Update the display:
+   for (i = kMatrixHeight-1; i>0; i--)  // shift the display down
    {
       //matrix.displaybuffer[i] = matrix.displaybuffer[i+1];
-      for (int j=0; j < kMatrixHeight-1; j++)
+      for (j = 0; j < kMatrixWidth-1; j++)
       {
-        leds[XY(i,j)] = leds[XY(i,j+1)];
+        leds[XY(j,i)] = leds[XY(j,i-1)];
       }
-   }*/
+   }
 
    // draw the new sample
-   for (int i = 0; i <= kMatrixHeight-1; i++)
+   for (i = 0; i <= kMatrixWidth-1; i++)
    {
-       int x=2; //kMatrixWidth-1;
+       int y=0; //kMatrixWidth-1;
       if (i >= displayPeak)  // blank these pixels
       {
          //matrix.drawPixel(i, 7, 0);
-         leds[XY(x,i)] = CRGB::Black;
+         leds[XY(i,y)] = CRGB::Black;
       }
-      else if (i < redZone) // draw in green
+      /*else if (i < redZone) // draw in green
       {
          //matrix.drawPixel(i, 7, LED_GREEN);
-         leds[XY(x,i)] = CRGB::Green;
-      }
+         leds[XY(i,y)] = CRGB::Green;
+      }*/
       else // Red Alert!  Red Alert!
       {
          //matrix.drawPixel(i, 7, LED_RED);
-         leds[XY(x,i)] = CRGB::Red;
+         //leds[XY(i,y)] = CRGB::Red;
+         //leds[XY(i,y)]=CHSV(map(i,0,255,0,kMatrixWidth-10), 255, 255);
+         leds[XY(i,y)]=CHSV(44, 255, 255);
       }
    }
    //matrix.writeDisplay();  // write the changes we just made to the display

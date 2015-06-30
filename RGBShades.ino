@@ -71,19 +71,19 @@ void setup() {
 
 // list of functions that will be displayed
 functionList effectList[] = {
-//hackadayTextMulti,hackadayText,hackadayTextWhite,hackadayTextInvert,
+hackadayText,//hackadayTextWhite,hackadayTextInvert,hackadayTextMulti,
 
                              
-                             //VU//,
-                             //threeSine,
+                             VU,
+                             threeSine,
                              //threeDee,
-                             //plasma,
-                             confetti//,
-                             //rider,
+                             plasma,
+                             confetti,
+                             rider,
                              //glitter,
-                             //slantBars,
+                             slantBars,
                              //colorFill,
-                             //sideRain 
+                             sideRain 
                            };
 
 // Timing parameters
