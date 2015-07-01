@@ -31,7 +31,7 @@
 
 // Global maximum brightness value, maximum 255
 #define MAXBRIGHTNESS 72
-#define STARTBRIGHTNESS 63
+#define STARTBRIGHTNESS 32
 byte currentBrightness = STARTBRIGHTNESS; // 0-255 will be scaled to 0-MAXBRIGHTNESS
 
 // Include FastLED library and other useful files
@@ -43,6 +43,8 @@ byte currentBrightness = STARTBRIGHTNESS; // 0-255 will be scaled to 0-MAXBRIGHT
 
 // Runs one time at the start of the program (power up or reset)
 void setup() {
+  
+  delay(200);
 
   //Adding debugging serial
   
@@ -72,7 +74,7 @@ void setup() {
 
 // list of functions that will be displayed
 functionList effectList[] = {
-hackadayText,//hackadayTextWhite,hackadayTextInvert,hackadayTextMulti,
+//hackadayText,//hackadayTextWhite,hackadayTextInvert,hackadayTextMulti,
 
                              
                              VU,
