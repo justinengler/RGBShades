@@ -1,8 +1,8 @@
 // Process button inputs and return button activity
 
 #define NUMBUTTONS 2
-#define MODEBUTTON 4
-#define BRIGHTNESSBUTTON 3
+#define MODEBUTTON 12
+#define BRIGHTNESSBUTTON 11
 
 #define BTNIDLE 0
 #define BTNDEBOUNCING 1

@@ -20,10 +20,14 @@
 
 
 // RGB Shades data output to LEDs is on pin 5
-#define LED_PIN  6
+#define LED_PIN  3
 
 //D23=A9?
 #define SOUND_PIN A9
+
+//Fakey Grounds Here
+#define G1 9
+#define G2 10
 
 // RGB Shades color order (Green/Red/Blue)
 #define COLOR_ORDER GRB
@@ -44,7 +48,7 @@ byte currentBrightness = STARTBRIGHTNESS; // 0-255 will be scaled to 0-MAXBRIGHT
 // Runs one time at the start of the program (power up or reset)
 void setup() {
   
-  delay(200);
+  delay(200); //prevents startup crash
 
   //Adding debugging serial
   
@@ -67,6 +71,14 @@ void setup() {
   // configure input buttons
   pinMode(MODEBUTTON, INPUT_PULLUP);
   pinMode(BRIGHTNESSBUTTON, INPUT_PULLUP);
+
+  // fakey grounds setup
+  pinMode(G1, OUTPUT);
+  pinMode(G1, OUTPUT);
+  digitalWrite(G1, LOW);
+  digitalWrite(G2, LOW);
+  
+  
 
   //Serial.println("Setup Done");
 
