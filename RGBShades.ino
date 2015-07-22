@@ -20,7 +20,7 @@
 
 
 
-// RGB Shades data output to LEDs is on pin 5
+// RGB Shades data output to LEDs is on pin 3
 #define LED_PIN  3
 
 //D23=A9?
@@ -65,6 +65,7 @@ byte currentBrightness = STARTBRIGHTNESS; // 0-255 will be scaled to 0-MAXBRIGHT
 #include "utils.h"
 #include "effects.h"
 #include "buttons.h"
+#include "effectlist.h"
 
 // Runs one time at the start of the program (power up or reset)
 void setup() {
@@ -111,7 +112,7 @@ void setup() {
 }
 
 // list of functions that will be displayed
-functionList effectList[] = {
+/*functionList effectList[] = {
 //hackadayText,hackadayTextWhite,hackadayTextInvert,hackadayTextMulti,
 
                              spectrumAnalyzerTest,
@@ -127,6 +128,7 @@ functionList effectList[] = {
                              sideRain,
                              flashlight
                            };
+                           */
 
 // Timing parameters
 #define cycleTime 15000
@@ -138,6 +140,7 @@ void initEffect(){
      effectNeedsSamples = false;
      effectNeedsFFT = false;
      effectFadeAmount = 0;
+     scrollEffect = false;
      Serial.print("New Mode:");
      Serial.println(currentEffect);
 }
@@ -217,6 +220,14 @@ void loop()
       if (packetbuffer[2]=='1' && packetbuffer[3]=='0')
         cycleModeToggle();
 
+    }
+    if (packetbuffer[1]=='T') //Text packet
+    {
+      packetbuffer[blelen]='\0';
+      memcpy(displayText,packetbuffer+2,200-2);
+      //displayText[blelen-2]='\0';
+      effectInit = true;
+        
     }
       
   }

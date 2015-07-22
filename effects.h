@@ -12,7 +12,7 @@
 // Hackaday Text
 byte xOffset = 0;
 byte sineOffset = 0; // counter for current position of sine waves
-char displayText[13] = "DEFCON XIII" ;
+char displayText[200] = "DEFCON XIII\0" ;
 void hackadayText() {
   // startup tasks
   if (effectInit == false) {
@@ -33,7 +33,7 @@ void hackadayText() {
   // clear all leds
   drawString(16-xOffset,0,c, CRGB::Black, displayText,&font3x5);
   xOffset++;
-  if (xOffset > 60) {
+  if (xOffset > strlen(displayText)*6) { //roughly double the length of the string
     xOffset = 0;
   }
   sineOffset++; // byte will wrap from 255 to 0, matching sin8 0-255 cycle
@@ -400,6 +400,207 @@ void flashlight() {
      }
    }
 }
+
+
+#include "letters.h"
+#include "numbers.h"
+
+
+// sine ripple effect
+uint8_t  sineRipple_dist[NUM_LEDS];
+void sineRipple() {  // startup tasks
+  
+  if(effectInit == false) {
+    effectInit = true;
+    scrollEffect = false;
+    effectDelay = 12;
+    
+    currentPalette = CRGBPalette16( CRGB::Black, CRGB::Red, CRGB::Black);
+    uint8_t mlt256 = 256 / (kMatrixHeight + kMatrixWidth); // maximum possible distance to origin point
+    for(uint8_t y=0; y<kMatrixHeight; y++) {
+      for(uint8_t x=0; x<kMatrixWidth; x++) {
+        // calculate distance to origin point sqrt((x+_xoffset)*(x+_xoffset) + (y+_yoffset)*(y+_yoffset)) * mlt256
+        sineRipple_dist[XY(x,y)] = sqrt((x-7)*(x-7) + (y+1)*(y+1)) * mlt256;
+      }
+    }
+  }
+  
+  for(uint8_t x=0;x<kMatrixWidth;x++) {
+    for(uint8_t y=0;y<kMatrixHeight;y++) {
+      leds[XY(x,y)] = ColorFromPalette(currentPalette, quadwave8((((sineRipple_dist[XY(x,y)] * 3) - offset)%256)));
+    }
+  }
+  offset++;
+}
+
+
+// Draws parallel lines from alternating directions
+uint8_t lineDir;
+uint8_t linePos;
+void gridLines() {
+  if (effectInit == false) {  //startup tasks
+    effectInit = true;
+    scrollEffect = false;
+    currentColor = 0;
+    lineDir = 0;
+    linePos = 0;
+    FastLED.clear();
+  }
+
+  if (lineDir == 0) {
+    for (uint8_t y=0;y<5;y+=2) {
+      leds[XY(linePos,y)] = CRGB::Green;
+    }
+    effectDelay = 60;
+    if (linePos >= 15) {
+      linePos = 0;
+      lineDir++;
+      effectDelay = 300;
+    }
+    else linePos++;
+  }
+  
+  else if (lineDir == 1) {
+    for (uint8_t x=0;x<16;x+=2) {
+      leds[XY(x,linePos)] = CRGB::Red;
+    }
+    effectDelay = 120;
+    if (linePos >= 4) {
+      linePos = 0;
+      lineDir++;
+      effectDelay = 300;
+    }
+    else linePos++;
+  }
+  
+  else if (lineDir == 2) {
+    for (uint8_t y=1;y<5;y+=2) {
+      leds[XY((15-linePos),y)] = CRGB::Yellow;
+    }
+    effectDelay = 60;
+    if (linePos >= 15) {
+      linePos = 0;
+      lineDir++;
+      effectDelay = 300;
+    }
+    else linePos++;
+  }
+  
+  else if (lineDir == 3) {
+    for (uint8_t x=1;x<16;x+=2) {
+      leds[XY(x,(4-linePos))] = CRGB::Blue;
+    }
+    effectDelay = 120;
+    if (linePos >= 4) {
+      linePos = 0;
+      lineDir = 0;
+      effectDelay = 300;
+    }
+    else linePos++;
+  }
+}
+
+
+// StormAngel's text scroller effect
+uint8_t hPos;
+uint8_t vPos;
+boolean vScroll;
+void stormScroll() {  // startup tasks
+  if (effectInit == false) {
+    effectInit = true;
+    scrollEffect = true;
+    effectDelay = 160;
+    scrollDir = 0;
+    horiPos = 7;
+    vertiPos = 5;
+    hPos = 35;
+    vPos = 5;
+    sWidth = 60;
+    vScroll = false;
+  }
+  
+  FastLED.clear();
+  drawChar(28,CHSV(cycleHue, 255, 255), (horiPos)%sWidth, vertiPos);
+   // S
+  drawChar(29,CHSV(cycleHue, 255, 255),(horiPos+5)%sWidth,vertiPos);
+   // T
+  drawChar(24,CHSV(cycleHue, 255, 255),(horiPos+11)%sWidth,vertiPos);
+   // O
+  drawChar(27,CHSV(cycleHue, 255, 255),(horiPos+16)%sWidth,vertiPos);
+   // R
+  drawChar(22,CHSV(cycleHue, 255, 255),(horiPos+21)%sWidth,vertiPos);
+   // M
+  
+  if (horiPos == 0) {
+    horiPos = sWidth-1;
+  }
+  if (hPos == 0) {
+    hPos = sWidth-1;
+  }
+  
+  drawChar(10,CHSV(cycleHue+80, 255, 255),(hPos)%sWidth,vPos);
+   // A
+  drawChar(23,CHSV(cycleHue+80, 255, 255),(hPos+5)%sWidth,vPos);
+   // N
+  drawChar(16,CHSV(cycleHue+80, 255, 255),(hPos+11)%sWidth,vPos);
+   // G
+  drawChar(14,CHSV(cycleHue+80, 255, 255),(hPos+16)%sWidth,vPos);
+   // E
+  drawChar(21,CHSV(cycleHue+80, 255, 255),(hPos+20)%sWidth,vPos);
+   // L
+  
+  if (vScroll == true) {
+    vPos++;
+    if (++vertiPos == 5) {
+      vScroll = false;
+      hPos = 36;
+      vPos = 5;
+     }
+  }
+  else if (hPos == 57) {
+      vScroll = true;
+      horiPos = 14;
+      vertiPos = 255;
+  }
+  horiPos--;
+  hPos--;
+}
+
+
+// 1337 Scroller
+void eliteScrolls() {
+  if(effectInit == false) {  //startup tasks
+    effectInit = true;
+    scrollEffect = true;
+    effectDelay = 80;
+    horiPos = 6;
+    sWidth = 20;
+  }
+  
+  FastLED.clear();
+  drawChar(1,CHSV(cycleHue+00, 255, 255),(horiPos)%sWidth,5);
+  drawChar(3,CHSV(cycleHue+20, 255, 255),(horiPos+3)%sWidth,5);
+  drawChar(3,CHSV(cycleHue+40, 255, 255),(horiPos+7)%sWidth,5);
+  drawChar(7,CHSV(cycleHue+60, 255, 255),(horiPos+11)%sWidth,5);
+
+  if (scrollDir == 1) {  // Scroll left
+    horiPos--;
+  }
+  else if(scrollDir == 2) {  // Scroll right
+    horiPos++;
+  }  
+  else if (horiPos != 6) {  // Scroll to start position
+    horiPos++;
+  }
+  
+  if(horiPos >= (sWidth+1)) {
+    horiPos = 1;
+  }
+  if (horiPos == 0) {
+    horiPos = sWidth;
+  }
+}
+
 
 
 //VU testing

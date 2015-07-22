@@ -3,6 +3,7 @@
 boolean effectInit = false; // indicates if a pattern has been recently switched
 boolean effectNeedsSamples = false;
 boolean effectNeedsFFT = false;
+boolean scrollEffect = false;
 byte effectFadeAmount = 0;
 uint16_t effectDelay = 0; // time between automatic effect changes
 unsigned long effectMillis = 0; // store the time of last effect function run
@@ -13,6 +14,12 @@ unsigned long hueMillis; // store time of last hue change
 
 byte currentEffect = 0; // index to the currently running effect
 boolean autoCycle = false; // flag for automatic effect changes
+
+uint8_t sWidth = 26; // width of the scroll area
+uint8_t sHeight = 15; // height of the scroll area
+uint8_t scrollDir = 0; // direction of scrolling text (0-2)
+uint8_t horiPos = 0; // increment this to scroll horizontally
+uint8_t vertiPos = 0; // increment this to scroll vertically
 
 
 

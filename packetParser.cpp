@@ -77,7 +77,7 @@ uint8_t readPacket(Adafruit_BLE *ble, uint16_t timeout)
   memset(packetbuffer, 0, READ_BUFSIZE);
 
   while (timeout--) {
-    if (replyidx >= 20) break;
+    if (replyidx >= READ_BUFSIZE-1) break;
     if ((packetbuffer[1] == 'A') && (replyidx == PACKET_ACC_LEN))
       break;
     if ((packetbuffer[1] == 'G') && (replyidx == PACKET_GYRO_LEN))
@@ -92,19 +92,22 @@ uint8_t readPacket(Adafruit_BLE *ble, uint16_t timeout)
       break;
     if ((packetbuffer[1] == 'L') && (replyidx == PACKET_LOCATION_LEN))
       break;
+    if ((packetbuffer[1] == 'T') && (packetbuffer[replyidx]==';'))
+      break;
+    
 
     while (ble->available()) {
       char c =  ble->read();
       if (c == '!') {
         replyidx = 0;
         Serial.println("newpacket");
-        timeout+=1500;
+        timeout+=15000;
         origtimeout=timeout;
       }
       packetbuffer[replyidx] = c;
       Serial.println(c);
       replyidx++;
-      timeout = origtimeout;
+      //timeout = origtimeout;
     }
     
     if (timeout == 0) {
@@ -127,6 +130,8 @@ uint8_t readPacket(Adafruit_BLE *ble, uint16_t timeout)
     return 0;
   if (packetbuffer[0] != '!')  // doesn't start with '!' packet beginning
     return 0;
+  
+  if (packetbuffer[1] == 'T') return replyidx; //No checksum for text because I'm lazy.
   
   // check checksum!
   uint8_t xsum = 0;
