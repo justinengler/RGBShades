@@ -12,7 +12,7 @@
 // Hackaday Text
 byte xOffset = 0;
 byte sineOffset = 0; // counter for current position of sine waves
-char displayText[200] = "DEFCON XIII\0" ;
+char displayText[200] = "HACK ALL THE GLASSES!\0" ;
 void hackadayText() {
   // startup tasks
   if (effectInit == false) {
@@ -42,7 +42,7 @@ void hackadayTextWhite() {
   // startup tasks
   if (effectInit == false) {
     effectInit = true;
-    effectDelay = 150;
+    effectDelay = 40;
     xOffset = 0;
   }
   for (byte x = 0; x < kMatrixWidth; x++) {
@@ -55,7 +55,7 @@ void hackadayTextWhite() {
   // clear all leds
   drawString(16-xOffset,0,c, CRGB::Black, displayText,&font3x5);
   xOffset++;
-  if (xOffset > 60) {
+  if (xOffset > strlen(displayText)*6) { //roughly double the length of the string
     xOffset = 0;
   }
   sineOffset++; // byte will wrap from 255 to 0, matching sin8 0-255 cycle
@@ -65,7 +65,7 @@ void hackadayTextInvert() {
   // startup tasks
   if (effectInit == false) {
     effectInit = true;
-    effectDelay = 150;
+    effectDelay = 40;
     xOffset = 0;
   }
   //byte sinDistanceR = qmul8(sin8(sineOffset*9*16),2);
@@ -83,64 +83,13 @@ void hackadayTextInvert() {
   // clear all leds
   drawString(16-xOffset,0,CRGB::White, displayText,&font3x5);
   xOffset++;
-  if (xOffset > 60) {
+  if (xOffset > strlen(displayText)*6) { //roughly double the length of the string
     xOffset = 0;
   }
   sineOffset++; // byte will wrap from 255 to 0, matching sin8 0-255 cycle
 }
 
-int offCounter = 0;
-void hackadayTextMulti() {
-  if (effectInit == false) {
-    effectInit = true;
-    effectDelay = 10;
-    sineOffset = 0;
-    xOffset = 0;
-    offCounter = 0;
-  }
-  
-  // clear
-  for (byte x = 0; x < kMatrixWidth; x++) {
-    for (byte y = 0; y < kMatrixHeight; y++) {
-      leds[XY(x,y)] = CRGB::Black;
-    }
-  }
-  
-  int xcnt, ycnt, i = 0, offset = 0;
-  int16_t x = 16-xOffset, y = 0;
-  char character;
-  const bitmap_font *font = &font3x5;
-  //const char text[] = "HACKADAY.IO";
-  
-  // limit text to 10 chars, why?
-  for (i = 0; i < 20; i++) {
-      character = displayText[offset++];
-      if (character == '\0')
-          break;
-      
-      CRGB c = CHSV((i*30)+sineOffset,255,128);
-      
-      for (ycnt = 0; ycnt < font->Height; ycnt++) {
-          for (xcnt = 0; xcnt < font->Width; xcnt++) {
-              if (getBitmapFontPixelAtXY(character, xcnt, ycnt, font)) {
-                  leds[XY(x + xcnt,y + ycnt)] = c;
-              }
-          }
-      }
-      x += font->Width;
-  }
-  if (offCounter > 15) {
-    xOffset++;
-    if (xOffset > 60) {
-      xOffset = 0;
-    }
-    offCounter = 0;
-  }
-  if (offCounter%3==0) {  
-    sineOffset++;
-  }
-  offCounter++;
-}
+
 // Triple Sine Waves
 void threeSine() {
   
@@ -384,10 +333,6 @@ void slantBars() {
 }
 
 
-#include "letters.h"
-#include "numbers.h"
-
-
 // sine ripple effect
 uint8_t  sineRipple_dist[NUM_LEDS];
 void sineRipple() {  // startup tasks
@@ -416,173 +361,7 @@ void sineRipple() {  // startup tasks
 }
 
 
-// Draws parallel lines from alternating directions
-uint8_t lineDir;
-uint8_t linePos;
-void gridLines() {
-  if (effectInit == false) {  //startup tasks
-    effectInit = true;
-    scrollEffect = false;
-    currentColor = 0;
-    lineDir = 0;
-    linePos = 0;
-    FastLED.clear();
-  }
 
-  if (lineDir == 0) {
-    for (uint8_t y=0;y<5;y+=2) {
-      leds[XY(linePos,y)] = CRGB::Green;
-    }
-    effectDelay = 60;
-    if (linePos >= 15) {
-      linePos = 0;
-      lineDir++;
-      effectDelay = 300;
-    }
-    else linePos++;
-  }
-  
-  else if (lineDir == 1) {
-    for (uint8_t x=0;x<16;x+=2) {
-      leds[XY(x,linePos)] = CRGB::Red;
-    }
-    effectDelay = 120;
-    if (linePos >= 4) {
-      linePos = 0;
-      lineDir++;
-      effectDelay = 300;
-    }
-    else linePos++;
-  }
-  
-  else if (lineDir == 2) {
-    for (uint8_t y=1;y<5;y+=2) {
-      leds[XY((15-linePos),y)] = CRGB::Yellow;
-    }
-    effectDelay = 60;
-    if (linePos >= 15) {
-      linePos = 0;
-      lineDir++;
-      effectDelay = 300;
-    }
-    else linePos++;
-  }
-  
-  else if (lineDir == 3) {
-    for (uint8_t x=1;x<16;x+=2) {
-      leds[XY(x,(4-linePos))] = CRGB::Blue;
-    }
-    effectDelay = 120;
-    if (linePos >= 4) {
-      linePos = 0;
-      lineDir = 0;
-      effectDelay = 300;
-    }
-    else linePos++;
-  }
-}
-
-
-// StormAngel's text scroller effect
-uint8_t hPos;
-uint8_t vPos;
-boolean vScroll;
-void stormScroll() {  // startup tasks
-  if (effectInit == false) {
-    effectInit = true;
-    scrollEffect = true;
-    effectDelay = 40;
-    scrollDir = 0;
-    horiPos = 7;
-    vertiPos = 5;
-    hPos = 35;
-    vPos = 5;
-    sWidth = 60;
-    vScroll = false;
-  }
-  
-  FastLED.clear();
-  drawChar(28,CHSV(cycleHue, 255, 255), (horiPos)%sWidth, vertiPos);
-   // S
-  drawChar(29,CHSV(cycleHue, 255, 255),(horiPos+5)%sWidth,vertiPos);
-   // T
-  drawChar(24,CHSV(cycleHue, 255, 255),(horiPos+11)%sWidth,vertiPos);
-   // O
-  drawChar(27,CHSV(cycleHue, 255, 255),(horiPos+16)%sWidth,vertiPos);
-   // R
-  drawChar(22,CHSV(cycleHue, 255, 255),(horiPos+21)%sWidth,vertiPos);
-   // M
-  
-  if (horiPos == 0) {
-    horiPos = sWidth-1;
-  }
-  if (hPos == 0) {
-    hPos = sWidth-1;
-  }
-  
-  drawChar(10,CHSV(cycleHue+80, 255, 255),(hPos)%sWidth,vPos);
-   // A
-  drawChar(23,CHSV(cycleHue+80, 255, 255),(hPos+5)%sWidth,vPos);
-   // N
-  drawChar(16,CHSV(cycleHue+80, 255, 255),(hPos+11)%sWidth,vPos);
-   // G
-  drawChar(14,CHSV(cycleHue+80, 255, 255),(hPos+16)%sWidth,vPos);
-   // E
-  drawChar(21,CHSV(cycleHue+80, 255, 255),(hPos+20)%sWidth,vPos);
-   // L
-  
-  if (vScroll == true) {
-    vPos++;
-    if (++vertiPos == 5) {
-      vScroll = false;
-      hPos = 36;
-      vPos = 5;
-     }
-  }
-  else if (hPos == 57) {
-      vScroll = true;
-      horiPos = 14;
-      vertiPos = 255;
-  }
-  horiPos--;
-  hPos--;
-}
-
-
-// 1337 Scroller
-void eliteScrolls() {
-  if(effectInit == false) {  //startup tasks
-    effectInit = true;
-    scrollEffect = true;
-    effectDelay = 80;
-    horiPos = 6;
-    sWidth = 20;
-    scrollDir=1;
-  }
-  
-  FastLED.clear();
-  drawChar(1,CHSV(cycleHue+00, 255, 255),(horiPos)%sWidth,5);
-  drawChar(3,CHSV(cycleHue+20, 255, 255),(horiPos+3)%sWidth,5);
-  drawChar(3,CHSV(cycleHue+40, 255, 255),(horiPos+7)%sWidth,5);
-  drawChar(7,CHSV(cycleHue+60, 255, 255),(horiPos+11)%sWidth,5);
-
-  if (scrollDir == 1) {  // Scroll left
-    horiPos--;
-  }
-  else if(scrollDir == 2) {  // Scroll right
-    horiPos++;
-  }  
-  else if (horiPos != 6) {  // Scroll to start position
-    horiPos++;
-  }
-  
-  if(horiPos >= (sWidth+1)) {
-    horiPos = 1;
-  }
-  if (horiPos == 0) {
-    horiPos = sWidth;
-  }
-}
 
 // See stuff
 void flashlight() {
@@ -610,7 +389,7 @@ void conway() {
   if (effectInit == false) {
     effectInit = true;
     effectDelay = 150;
-    effectFadeAmount = 1;
+    effectFadeAmount = 0;
     selectRandomPalette();
     
     // new board
@@ -621,7 +400,8 @@ void conway() {
     }
   }
    CRGB nextstate[ NUM_LEDS ];
-   byte life=0;
+   byte life = 0;
+   byte growth = 0;
    for (byte x = 0; x < kMatrixWidth; x++) {
      for (byte y = 0; y < kMatrixHeight; y++) {
         nextstate[XY(x,y)] = CRGB::Black;
@@ -641,7 +421,7 @@ void conway() {
           if (neighbors < 2) nextstate[XY(x,y)] = CRGB::Black;
           if (neighbors ==2 || neighbors==3)
           {
-            nextstate[XY(x,y)] = ColorFromPalette(currentPalette, random16(255), 255); 
+            nextstate[XY(x,y)] = leds[XY(x,y)].nscale8_video( 192); //fades old cells
             life++;
           }
           if (neighbors > 3) nextstate[XY(x,y)] = CRGB::Black;
@@ -650,6 +430,7 @@ void conway() {
          {
            nextstate[XY(x,y)] = ColorFromPalette(currentPalette, random16(255), 255); 
            life++;
+           growth++;
          }
         
         
@@ -658,10 +439,11 @@ void conway() {
    
    memcpy(leds, nextstate, sizeof(leds));
    
-   if (life < 6 ) //reset if there are too few cells on the board
+   if (life < 6 || growth == 0) //reset if there are too few cells on the board or it's static
    {
-     effectDelay=1000;
+     effectDelay=1200;
      effectInit=false;
+     effectFadeAmount=1;
    }
      
    

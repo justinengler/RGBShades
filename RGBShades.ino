@@ -70,7 +70,7 @@ byte currentBrightness = STARTBRIGHTNESS; // 0-255 will be scaled to 0-MAXBRIGHT
 // Runs one time at the start of the program (power up or reset)
 void setup() {
   
-  delay(200); //prevents startup crash
+  delay(500); //prevents startup crash
 
   //Adding debugging serial
   //while (!Serial);  // required waits for serial connection
@@ -111,24 +111,7 @@ void setup() {
   
 }
 
-// list of functions that will be displayed
-/*functionList effectList[] = {
-//hackadayText,hackadayTextWhite,hackadayTextInvert,hackadayTextMulti,
 
-                             spectrumAnalyzerTest,
-                             VU,
-                             threeSine,
-                             //threeDee,
-                             plasma,
-                             confetti,
-                             rider,
-                             //glitter,
-                             slantBars,
-                             //colorFill,
-                             sideRain,
-                             flashlight
-                           };
-                           */
 
 // Timing parameters
 #define cycleTime 15000
@@ -221,12 +204,14 @@ void loop()
         cycleModeToggle();
 
     }
-    if (packetbuffer[1]=='T') //Text packet
+    if (packetbuffer[1]=='t') //Text packet
     {
-      packetbuffer[blelen]='\0';
+      packetbuffer[blelen-1]='\0';
       memcpy(displayText,packetbuffer+2,200-2);
       //displayText[blelen-2]='\0';
-      effectInit = true;
+      currentEffect=0; // Switch to a text display effect
+      initEffect();
+      
         
     }
       

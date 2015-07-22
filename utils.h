@@ -91,7 +91,8 @@ void selectRandomPalette() {
     break;
     
     case 5:
-    currentPalette = RainbowColors_p;
+    //currentPalette = RainbowColors_p;
+    currentPalette = HeatColors_p;
     break;
     
     case 6:

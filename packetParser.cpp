@@ -92,7 +92,7 @@ uint8_t readPacket(Adafruit_BLE *ble, uint16_t timeout)
       break;
     if ((packetbuffer[1] == 'L') && (replyidx == PACKET_LOCATION_LEN))
       break;
-    if ((packetbuffer[1] == 'T') && (packetbuffer[replyidx]==';'))
+    if ((packetbuffer[1] == 't') && (packetbuffer[replyidx]==';'))
       break;
     
 
@@ -131,7 +131,7 @@ uint8_t readPacket(Adafruit_BLE *ble, uint16_t timeout)
   if (packetbuffer[0] != '!')  // doesn't start with '!' packet beginning
     return 0;
   
-  if (packetbuffer[1] == 'T') return replyidx; //No checksum for text because I'm lazy.
+  if (packetbuffer[1] == 't') return replyidx; //No checksum for text because I'm lazy.
   
   // check checksum!
   uint8_t xsum = 0;
