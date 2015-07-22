@@ -101,13 +101,13 @@ uint8_t readPacket(Adafruit_BLE *ble, uint16_t timeout)
       if (c == '!') {
         replyidx = 0;
         Serial.println("newpacket");
-        timeout+=15000;
+        timeout+=1500000;
         origtimeout=timeout;
       }
       packetbuffer[replyidx] = c;
       Serial.println(c);
       replyidx++;
-      //timeout = origtimeout;
+      timeout = origtimeout;
     }
     
     if (timeout == 0) {

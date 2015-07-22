@@ -509,7 +509,7 @@ void stormScroll() {  // startup tasks
   if (effectInit == false) {
     effectInit = true;
     scrollEffect = true;
-    effectDelay = 160;
+    effectDelay = 40;
     scrollDir = 0;
     horiPos = 7;
     vertiPos = 5;
@@ -575,6 +575,7 @@ void eliteScrolls() {
     effectDelay = 80;
     horiPos = 6;
     sWidth = 20;
+    scrollDir=1;
   }
   
   FastLED.clear();
