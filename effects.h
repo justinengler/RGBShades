@@ -383,24 +383,6 @@ void slantBars() {
 
 }
 
-// See stuff
-void flashlight() {
-
-  // startup tasks
-  if (effectInit == false) {
-    effectInit = true;
-    effectDelay = 50;
-  }
-  
-   for (byte x = 0; x < kMatrixWidth; x++) {
-     for (byte y = 0; y < kMatrixHeight; y++) {
-      
-         leds[XY(x,y)] = CRGB::White;
-
-     }
-   }
-}
-
 
 #include "letters.h"
 #include "numbers.h"
@@ -602,7 +584,70 @@ void eliteScrolls() {
   }
 }
 
+// See stuff
+void flashlight() {
 
+  // startup tasks
+  if (effectInit == false) {
+    effectInit = true;
+    effectDelay = 50;
+  }
+  
+   for (byte x = 0; x < kMatrixWidth; x++) {
+     for (byte y = 0; y < kMatrixHeight; y++) {
+      
+         leds[XY(x,y)] = CRGB::White;
+
+     }
+   }
+}
+
+#define CONWAY_DENSITY 64
+// game of life
+void conway() {
+
+  // startup tasks
+  if (effectInit == false) {
+    effectInit = true;
+    effectDelay = 50;
+    selectRandomPalette();
+    
+    // new board
+    for (byte x = 0; x < kMatrixWidth; x++) {
+      for (byte y = 0; y < kMatrixHeight; y++) {
+        leds[XY(x,y)] =  random8() > CONWAY_DENSITY ? CRGB::Black : ColorFromPalette(currentPalette, random16(255), 255); 
+      }
+    }
+  }
+   CRGB nextstate[ NUM_LEDS ];
+   for (byte x = 0; x < kMatrixWidth; x++) {
+     for (byte y = 0; y < kMatrixHeight; y++) {
+        //count neighbors
+        int neighbors=0;
+        if (x>0 && y>0 && leds[XY(x-1,y-1)] ) neighbors++; //top left
+        if (y>0 && leds[XY(x,y-1)] ) neighbors++; //top
+        if (x<kMatrixWidth-1 && y>0 && leds[XY(x+1,y-1)] ) neighbors++; //top right
+        if (x>0 && leds[XY(x-1,y)] ) neighbors++; //left
+        if (x<kMatrixWidth-1 && leds[XY(x+1,y)] ) neighbors++; //right
+        if (x>0 && y<kMatrixHeight-1  &&  leds[XY(x-1,y+1)] ) neighbors++; //low left
+        if ( y<kMatrixHeight-1 &&  leds[XY(x,y+1)] ) neighbors++; //low
+        if (x<kMatrixWidth-1 && y<kMatrixHeight-1  &&  leds[XY(x+1,y+1)] ) neighbors++; //low right
+        
+        if (leds[XY(x,y)])
+        {
+          if (neighbors < 2) nextstate[XY(x,y)] = CRGB::Black;
+          if (neighbors ==2 || neighbors==3) nextstate[XY(x,y)] = CRGB::Blue;
+          if (neighbors > 3) nextstate[XY(x,y)] = CRGB::Black;
+        }
+        else if (neighbors == 3) nextstate[XY(x,y)] = CRGB::Blue;
+        
+        
+     }
+   }
+   
+   memcpy(leds, nextstate, sizeof(leds));
+   
+}
 
 //VU testing
 #include "audioSamp.h"
