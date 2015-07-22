@@ -1,3 +1,10 @@
+Changes from base:
+ - Uses Teensy at 48Mhz
+ - Uses audio on port A9 (Heavily borrowed from Tony DiCola's examples)
+ - Uses Adafruit BLE on HW serial1 (Heavily borrowed from Adafruit examples)
+
+ 
+
 Pull Requests - For new effects, please target the "experimental" branch. We'll try to throw everything in experimental, and bubble finished effects into the master branch.
 
 RGBShades

@@ -25,9 +25,9 @@ void hackadayText() {
       leds[XY(x,y)] = CRGB::Black;
     }
   }
-  byte sinDistanceR = qmul8(sin8(sineOffset*9*16),2);
-  byte sinDistanceG = qmul8(sin8(sineOffset*10*16),2);
-  byte sinDistanceB = qmul8(sin8(sineOffset*11*16),2);
+  //byte sinDistanceR = qmul8(sin8(sineOffset*9*16),2);
+  //byte sinDistanceG = qmul8(sin8(sineOffset*10*16),2);
+  //byte sinDistanceB = qmul8(sin8(sineOffset*11*16),2);
   
   CRGB c = CHSV(sineOffset,255,255);
   // clear all leds
@@ -68,9 +68,9 @@ void hackadayTextInvert() {
     effectDelay = 150;
     xOffset = 0;
   }
-  byte sinDistanceR = qmul8(sin8(sineOffset*9*16),2);
-  byte sinDistanceG = qmul8(sin8(sineOffset*10*16),2);
-  byte sinDistanceB = qmul8(sin8(sineOffset*11*16),2);
+  //byte sinDistanceR = qmul8(sin8(sineOffset*9*16),2);
+  //byte sinDistanceG = qmul8(sin8(sineOffset*10*16),2);
+  //byte sinDistanceB = qmul8(sin8(sineOffset*11*16),2);
   
   CRGB c = CHSV(sineOffset,255,64);
   
@@ -349,6 +349,7 @@ void confetti() {
   // startup tasks
   if (effectInit == false) {
     effectInit = true;
+    effectFadeAmount = 1;
     effectDelay = 10;
     selectRandomPalette();
   }
@@ -382,14 +383,31 @@ void slantBars() {
 
 }
 
+// See stuff
+void flashlight() {
+
+  // startup tasks
+  if (effectInit == false) {
+    effectInit = true;
+    effectDelay = 50;
+  }
+  
+   for (byte x = 0; x < kMatrixWidth; x++) {
+     for (byte y = 0; y < kMatrixHeight; y++) {
+      
+         leds[XY(x,y)] = CRGB::White;
+
+     }
+   }
+}
+
 
 //VU testing
 #include "audioSamp.h"
 
-const int redZone = kMatrixHeight-2;
 const int sampleWindow = 50; // Sample window width in mS (50 mS = 20Hz)
-const int VUeffectDelay = 50;  //5
-const int SAMPS=600;  //600
+const int VUeffectDelay = 25;  //5
+const int SAMPS=1200;  //600
 void VU() 
 {
   
@@ -397,8 +415,6 @@ void VU()
   Scrolling Sound Meter Sketch for the 
   Adafruit Microphone Amplifier
   ****************************************/
-
-  //const int maxScale = kMatrixHeight;
 
   // startup tasks
   if (effectInit == false) {
@@ -419,7 +435,6 @@ void VU()
   // Update the display:
    for (i = kMatrixHeight-1; i>0; i--)  // shift the display down
    {
-      //matrix.displaybuffer[i] = matrix.displaybuffer[i+1];
       for (j = 0; j < kMatrixWidth; j++)
       {
         leds[XY(j,i)] = leds[XY(j,i-1)];
@@ -434,16 +449,15 @@ void VU()
       if (i < displayPeak) // Below threshold, draw in color
       {
   
-         leds[XY(i,y)]=CHSV(map(i,0,kMatrixWidth-1,86,0), 255, 255);
-         /*Serial.print("Samp: ");
-         Serial.print(peakToPeak);
-         Serial.print(" displayPeak: ");
-         Serial.print(displayPeak);
-         Serial.print(" Row: ");
-         Serial.print(i);
-         Serial.print(" Mapped: ");
-         Serial.println(map(i,0,255,0,8));
-         //leds[XY(i,y)]=CHSV(44, 255, 255);*/
+         leds[XY(i,y)]=CHSV(map(i,0,(kMatrixWidth-1)/2,40,0), 255, 255);
+        // Serial.print("Samp: ");
+        // Serial.println(peakToPeak);
+        // Serial.print(" displayPeak: ");
+        // Serial.print(displayPeak);
+        // Serial.print(" Row: ");
+         //Serial.print(i);
+
+
       }
       /*else if ( i > kMatrixWidth/2)
       {
@@ -452,11 +466,73 @@ void VU()
       */
       else   // blank these pixels
       {
-         //matrix.drawPixel(i, 7, 0);
          leds[XY(i,y)] = CRGB::Black;
       }
 
    }
-   //matrix.writeDisplay();  // write the changes we just made to the display
+}
+
+//Spectrum Analyzer Test
+int localWindowCount;
+void spectrumAnalyzerTest()
+{
+   // startup tasks
+  if (effectInit == false) {
+    effectInit = true;
+    effectDelay = 3;    
+    effectNeedsFFT = true;
+    effectNeedsSamples = true;
+    effectFadeAmount = 12;
+    
+    localWindowCount=kMatrixWidth;
+    
+    spectrumSetup(localWindowCount);
+
+    
+    //Serial.println("In SA Init");
+  }
+  
+  float intensity, otherMean;
+  int x=3;
+  int y=1;
+  //leds[XY(2,2)]=CRGB::Red;
+  for (x = 0; x < localWindowCount; ++x) {
+    windowMean(magnitudes, 
+               frequencyToBin(frequencyWindow[x]),
+               frequencyToBin(frequencyWindow[x+1]),
+               &intensity,
+               &otherMean);
+    // Convert intensity to decibels.
+    intensity = 20.0*log10(intensity);
+    // Scale the intensity and clamp between 0 and 1.0.
+    intensity -= SPECTRUM_MIN_DB;
+    intensity = intensity < 0.0 ? 0.0 : intensity;
+    intensity /= (SPECTRUM_MAX_DB-SPECTRUM_MIN_DB);
+    intensity = intensity * (1+(x*.01));//SCALE experiment
+    intensity = intensity > 1.0 ? 1.0 : intensity;
+    //pixels.setPixelColor(i, pixelHSVtoRGBColor(hues[i], 1.0, intensity));
+    for (y=0; y < kMatrixHeight; y++)
+    {
+      if (intensity < (0.2+y*.15))
+      {
+        //leds[XY(x,y)]=CRGB::Black;
+        //leds[XY(x,y)].fadeToBlackBy(20);
+      }
+      else
+      {
+        leds[XY(x,y)]=CHSV(map(intensity*255,0,255,40,0), 255, 255);
+      }
+    }
+    /*Serial.print("i: ");
+    Serial.print(i);
+    Serial.print(" - ");
+    Serial.println((byte)(intensity*255));*/
+
+    
+    //leds[XY(2,2)]=CRGB::Blue;
+    
+  }
+
+  
 }
 

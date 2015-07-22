@@ -59,6 +59,11 @@ void updateButtons() {
   }
 }
 
+void setButtonStatus(byte buttonNum, byte newValue)
+{
+  buttonStatuses[buttonNum]=newValue;
+}
+
 byte buttonStatus(byte buttonNum) {
 
   byte tempStatus = buttonStatuses[buttonNum];

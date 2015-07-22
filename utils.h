@@ -1,14 +1,20 @@
 // Assorted useful functions and variables
 
 boolean effectInit = false; // indicates if a pattern has been recently switched
+boolean effectNeedsSamples = false;
+boolean effectNeedsFFT = false;
+byte effectFadeAmount = 0;
 uint16_t effectDelay = 0; // time between automatic effect changes
 unsigned long effectMillis = 0; // store the time of last effect function run
 unsigned long cycleMillis = 0; // store the time of last effect change
+unsigned long sampMillis = 0;
 unsigned long currentMillis; // store current loop's millis value
 unsigned long hueMillis; // store time of last hue change
 
 byte currentEffect = 0; // index to the currently running effect
-boolean autoCycle = true; // flag for automatic effect changes
+boolean autoCycle = false; // flag for automatic effect changes
+
+
 
 CRGBPalette16 currentPalette(RainbowColors_p); // global pallete storage
 
