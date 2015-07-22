@@ -2,6 +2,7 @@
 functionList effectList[] = {
   //spectrumAnalyzerTest,
   //VU,
+  conway,
   hackadayText,
   //gridLines,
   //eliteScrolls,

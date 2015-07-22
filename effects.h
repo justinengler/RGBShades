@@ -602,14 +602,15 @@ void flashlight() {
    }
 }
 
-#define CONWAY_DENSITY 64
+#define CONWAY_DENSITY 128
 // game of life
 void conway() {
 
   // startup tasks
   if (effectInit == false) {
     effectInit = true;
-    effectDelay = 50;
+    effectDelay = 150;
+    effectFadeAmount = 1;
     selectRandomPalette();
     
     // new board
@@ -620,8 +621,10 @@ void conway() {
     }
   }
    CRGB nextstate[ NUM_LEDS ];
+   byte life=0;
    for (byte x = 0; x < kMatrixWidth; x++) {
      for (byte y = 0; y < kMatrixHeight; y++) {
+        nextstate[XY(x,y)] = CRGB::Black;
         //count neighbors
         int neighbors=0;
         if (x>0 && y>0 && leds[XY(x-1,y-1)] ) neighbors++; //top left
@@ -636,16 +639,31 @@ void conway() {
         if (leds[XY(x,y)])
         {
           if (neighbors < 2) nextstate[XY(x,y)] = CRGB::Black;
-          if (neighbors ==2 || neighbors==3) nextstate[XY(x,y)] = CRGB::Blue;
+          if (neighbors ==2 || neighbors==3)
+          {
+            nextstate[XY(x,y)] = ColorFromPalette(currentPalette, random16(255), 255); 
+            life++;
+          }
           if (neighbors > 3) nextstate[XY(x,y)] = CRGB::Black;
         }
-        else if (neighbors == 3) nextstate[XY(x,y)] = CRGB::Blue;
+        else if (neighbors == 3) 
+         {
+           nextstate[XY(x,y)] = ColorFromPalette(currentPalette, random16(255), 255); 
+           life++;
+         }
         
         
      }
    }
    
    memcpy(leds, nextstate, sizeof(leds));
+   
+   if (life < 6 ) //reset if there are too few cells on the board
+   {
+     effectDelay=1000;
+     effectInit=false;
+   }
+     
    
 }
 
