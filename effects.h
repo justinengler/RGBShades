@@ -392,13 +392,35 @@ void conway() {
     effectFadeAmount = 0;
     selectRandomPalette();
     
+    
     // new board
-    for (byte x = 0; x < kMatrixWidth; x++) {
-      for (byte y = 0; y < kMatrixHeight; y++) {
-        leds[XY(x,y)] =  random8() > CONWAY_DENSITY ? CRGB::Black : ColorFromPalette(currentPalette, random16(255), 255); 
+    if (random8() < 64) //Draw an LWS
+    {
+      fillAll(CRGB::Black);
+      byte startingoffset = 11;
+      leds[XY(1+startingoffset,0)] = ColorFromPalette(currentPalette, random16(255), 255);
+      leds[XY(4+startingoffset,0)] = ColorFromPalette(currentPalette, random16(255), 255);
+      leds[XY(0+startingoffset,1)] = ColorFromPalette(currentPalette, random16(255), 255);
+      leds[XY(0+startingoffset,2)] = ColorFromPalette(currentPalette, random16(255), 255);
+      leds[XY(4+startingoffset,2)] = ColorFromPalette(currentPalette, random16(255), 255);
+      leds[XY(0+startingoffset,3)] = ColorFromPalette(currentPalette, random16(255), 255);
+      leds[XY(1+startingoffset,3)] = ColorFromPalette(currentPalette, random16(255), 255);
+      leds[XY(2+startingoffset,3)] = ColorFromPalette(currentPalette, random16(255), 255);
+      leds[XY(3+startingoffset,3)] = ColorFromPalette(currentPalette, random16(255), 255);
+    }
+    else { //random board
+      for (byte x = 0; x < kMatrixWidth; x++) {
+        for (byte y = 0; y < kMatrixHeight; y++) {
+          leds[XY(x,y)] =  random8() > CONWAY_DENSITY ? CRGB::Black : ColorFromPalette(currentPalette, random16(255), 255); 
+        }
       }
     }
+    
+    return;
+    
   }
+  
+  
    CRGB nextstate[ NUM_LEDS ];
    byte life = 0;
    byte growth = 0;
@@ -421,7 +443,7 @@ void conway() {
           if (neighbors < 2) nextstate[XY(x,y)] = CRGB::Black;
           if (neighbors ==2 || neighbors==3)
           {
-            nextstate[XY(x,y)] = leds[XY(x,y)].nscale8_video( 192); //fades old cells
+            nextstate[XY(x,y)] = leds[XY(x,y)].nscale8( 230); //fades old cells
             life++;
           }
           if (neighbors > 3) nextstate[XY(x,y)] = CRGB::Black;
@@ -432,14 +454,12 @@ void conway() {
            life++;
            growth++;
          }
-        
-        
      }
    }
    
    memcpy(leds, nextstate, sizeof(leds));
    
-   if (life < 6 || growth == 0) //reset if there are too few cells on the board or it's static
+   if (life < 5 || growth == -1) //reset if there are too few cells on the board or it's static
    {
      effectDelay=1200;
      effectInit=false;

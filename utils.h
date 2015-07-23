@@ -96,7 +96,8 @@ void selectRandomPalette() {
     break;
     
     case 6:
-    currentPalette = PartyColors_p;
+    currentPalette = LavaColors_p;
+    //currentPalette = PartyColors_p;
     break;
     
     case 7:
